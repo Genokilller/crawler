@@ -15,42 +15,50 @@ class CrawlerController
     /**
      * @var \PHPCrawler
      */
-    private $crawler;
+    private $crawlers;
 
-    public function __construct(\PHPCrawler $crawler)
+    public function __construct(array $crawlers)
     {
-        $this->crawler = $crawler;
+        $this->crawlers = $crawlers;
     }
 
     public function crawlAction(Input $input, Output $output)
     {
+        foreach ($this->crawlers as $crawler) {
+            $this->launchCrawler($crawler);
+        }
+    }
 
-// URL to crawl
-        $this->crawler->setURL("http://www.php.net/manual/en/book.mysql.php");
+    private function launchCrawler(\PHPCrawler $crawler)
+    {
 
-// Only receive content of files with content-type "text/html"
-        $this->crawler->addContentTypeReceiveRule("#text/html#");
+        // URL to crawl
+        $crawler->setURL("http://www.alittlemarket.com");
 
-// Ignore links to pictures, dont even request pictures
-        $this->crawler->addURLFilterRule('#^http://www.php.net/manual/en/.*mysql[^a-z]# i');
+        // Only receive content of files with content-type "text/html"
+        $crawler->addContentTypeReceiveRule("#text/html#");
 
-// Store and send cookie-data like a browser does
-        $this->crawler->enableCookieHandling(true);
+        // Ignore links to pictures, dont even request pictures
+        $crawler->addURLFilterRule('#^http://www.alittlemarket.com.* i');
 
-// Set the traffic-limit to 1 MB (in bytes,
-// for testing we dont want to "suck" the whole site)
-        $this->crawler->setTrafficLimit(50000 * 1024);
+        // Store and send cookie-data like a browser does
+        $crawler->enableCookieHandling(false);
 
-// That's it, start crawling using 5 processes
-        $this->crawler->goMultiProcessed(10);
+        // Set the traffic-limit to 1 MB (in bytes,
+        // for testing we dont want to "suck" the whole site)
+        $crawler->setTrafficLimit(500000 * 1024);
 
-// At the end, after the process is finished, we print a short
-// report (see method getProcessReport() for more information)
-        $report = $this->crawler->getProcessReport();
+        // Limit to 100k per page
+        $crawler->setContentSizeLimit(100 * 1024);
 
-        if (PHP_SAPI == "cli") $lb = "\n";
-        else $lb = "<br />";
+        // That's it, start crawling using 5 processes
+        $crawler->goMultiProcessed(20, \PHPCrawlerMultiProcessModes::MPMODE_CHILDS_EXECUTES_USERCODE);
 
+        // At the end, after the process is finished, we print a short
+        // report (see method getProcessReport() for more information)
+        $report = $crawler->getProcessReport();
+
+        $lb = "\n";
         echo "Summary:".$lb;
         echo "Links followed: ".$report->links_followed.$lb;
         echo "Documents received: ".$report->files_received.$lb;

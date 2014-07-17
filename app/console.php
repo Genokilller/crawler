@@ -15,7 +15,17 @@ $console->register('crawl')
     ))
     ->setDescription('Test crawl')
     ->setCode(function (InputInterface $input, OutputInterface $output) use ($app) {
-        $task = new \Crawler\Controller\CrawlerController($app['crawler']);
+
+        // Inculde the phpcrawl-mainclass
+        include_once(__DIR__."/../libs/Crawler/PHPCrawler.class.php");
+
+        # Register crawler
+        $crawlers = [];
+        for ($i=0;$i<1;$i++) {
+            $crawlers[] = new \Crawler\Crawler();
+        }
+
+        $task = new \Crawler\Controller\CrawlerController($crawlers);
         $task->crawlAction($input, $output);
     }
 );
