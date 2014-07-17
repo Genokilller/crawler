@@ -1,0 +1,9 @@
+
+!.gitignore
+vendor
+!kibana/vendor
+.idea
+config/*
+!config/config.sample.yml
+var/cache/*
+var/logs/*

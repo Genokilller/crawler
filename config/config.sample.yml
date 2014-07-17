@@ -1,0 +1,22 @@
+twig.path:
+  - /var/www/statistics/templates
+twig.options:
+  cache: /var/www/statistics/var/cache/twig
+
+# Database
+database:
+  driver: pdo_mysql
+  host: 127.0.0.1
+  user: user
+  password: password
+  dbname: dbname
+
+algolia:
+  host: 127.0.0.1
+  port: 9200
+
+security:
+  analytics:
+    password: password
+    paths:
+      - .*
