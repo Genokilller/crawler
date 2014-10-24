@@ -13,6 +13,7 @@ class Crawler extends \PHPCrawler
 {
     public function handleDocumentInfo(\PHPCrawlerDocumentInfo $PageInfo)
     {
-        print_r($PageInfo->url."\n");
+
+        print_r($PageInfo->toArray());die;
     }
 } 

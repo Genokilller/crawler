@@ -31,12 +31,14 @@ class CrawlerController
 
     private function launchCrawler(\PHPCrawler $crawler)
     {
+        $crawler->setUrlCacheType(\PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
+        $crawler->setWorkingDirectory("/dev/shm/");
 
         // URL to crawl
         $crawler->setURL("http://www.alittlemarket.com");
 
         // Only receive content of files with content-type "text/html"
-        $crawler->addContentTypeReceiveRule("#text/html#");
+        $crawler->addLinkSearchContentType("#text/xml# i");
 
         // Ignore links to pictures, dont even request pictures
         $crawler->addURLFilterRule('#^http://www.alittlemarket.com.* i');
@@ -44,9 +46,12 @@ class CrawlerController
         // Store and send cookie-data like a browser does
         $crawler->enableCookieHandling(false);
 
+        $crawler->enableAggressiveLinkSearch(false);
+        $crawler->setLinkExtractionTags(array("href"));
+
         // Set the traffic-limit to 1 MB (in bytes,
         // for testing we dont want to "suck" the whole site)
-        $crawler->setTrafficLimit(500000 * 1024);
+        $crawler->setTrafficLimit(100 * 1024);
 
         // Limit to 100k per page
         $crawler->setContentSizeLimit(100 * 1024);
