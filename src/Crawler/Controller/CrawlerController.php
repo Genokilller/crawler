@@ -31,7 +31,7 @@ class CrawlerController
 
     private function launchCrawler(\PHPCrawler $crawler)
     {
-        $crawler->setUrlCacheType(\PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
+        $crawler->setUrlCacheType(\PHPCrawlerUrlCacheTypes::URLCACHE_MEMORY);
         $crawler->setWorkingDirectory("/dev/shm/");
 
         // URL to crawl
@@ -51,13 +51,13 @@ class CrawlerController
 
         // Set the traffic-limit to 1 MB (in bytes,
         // for testing we dont want to "suck" the whole site)
-        $crawler->setTrafficLimit(100 * 1024);
+        $crawler->setTrafficLimit(100000 * 1024);
 
         // Limit to 100k per page
-        $crawler->setContentSizeLimit(100 * 1024);
+        $crawler->setContentSizeLimit(120 * 1024);
 
         // That's it, start crawling using 5 processes
-        $crawler->goMultiProcessed(20, \PHPCrawlerMultiProcessModes::MPMODE_CHILDS_EXECUTES_USERCODE);
+        $crawler->goMultiProcessed(10, \PHPCrawlerMultiProcessModes::MPMODE_CHILDS_EXECUTES_USERCODE);
 
         // At the end, after the process is finished, we print a short
         // report (see method getProcessReport() for more information)
