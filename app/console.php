@@ -18,15 +18,25 @@ $console->register('crawl')
 
         // Inculde the phpcrawl-mainclass
         include_once(__DIR__."/../libs/Crawler/PHPCrawler.class.php");
+        include_once(__DIR__."/../libs/Crawler/Enums/PHPCrawlerUrlCacheTypes.class.php");
+        include_once(__DIR__."/../libs/Crawler/PHPCrawlerUtils.class.php");
 
         # Register crawler
-        $crawlers = [];
-        for ($i=0;$i<1;$i++) {
-            $crawlers[] = new \Crawler\Crawler();
-        }
+        $crawler = new \Crawler\Crawler($app['crawler.repository']);
 
-        $task = new \Crawler\Controller\CrawlerController($crawlers);
-        $task->crawlAction($input, $output);
+        $task = $app['crawler.controller'];
+        $task->crawlAction($input, $output, $crawler);
+    }
+);
+$console->register('initializeClient')
+    ->setDefinition(array(
+        // new InputOption('some-option', null, InputOption::VALUE_NONE, 'Some help'),
+    ))
+    ->setDescription('Initialize a new client')
+    ->addArgument('client')
+    ->setCode(function (InputInterface $input, OutputInterface $output) use ($app) {
+        $task = $app['crawler.controller'];
+        $task->initializeClientAction($input, $output);
     }
 );
 return $console;

@@ -9,24 +9,29 @@ namespace Crawler\Controller;
 
 use Symfony\Component\Console\Input\Input;
 use Symfony\Component\Console\Output\Output;
+use Crawler\Schema\Elasticsearch\CrawlerSchema;
 
 class CrawlerController
 {
     /**
      * @var \PHPCrawler
      */
-    private $crawlers;
+    private $crawler;
 
-    public function __construct(array $crawlers)
+    /**
+     * @var CrawlerSchema
+     */
+    private $crawlerSchema;
+
+    public function __construct(CrawlerSchema $crawlerSchema)
     {
-        $this->crawlers = $crawlers;
+        $this->crawlerSchema = $crawlerSchema;
     }
 
-    public function crawlAction(Input $input, Output $output)
+    public function crawlAction(Input $input, Output $output, \PHPCrawler $crawler)
     {
-        foreach ($this->crawlers as $crawler) {
-            $this->launchCrawler($crawler);
-        }
+        $this->crawler = $crawler;
+        $this->launchCrawler($this->crawler);
     }
 
     private function launchCrawler(\PHPCrawler $crawler)
@@ -35,13 +40,13 @@ class CrawlerController
         $crawler->setWorkingDirectory("/dev/shm/");
 
         // URL to crawl
-        $crawler->setURL("http://www.alittlemarket.com");
+        $crawler->setURL("http://www.blackmeal.com");
 
         // Only receive content of files with content-type "text/html"
         $crawler->addLinkSearchContentType("#text/xml# i");
 
         // Ignore links to pictures, dont even request pictures
-        $crawler->addURLFilterRule('#^http://www.alittlemarket.com.* i');
+        $crawler->addURLFilterRule('#^http://www.blackmeal.com.* i');
 
         // Store and send cookie-data like a browser does
         $crawler->enableCookieHandling(false);
@@ -51,7 +56,7 @@ class CrawlerController
 
         // Set the traffic-limit to 1 MB (in bytes,
         // for testing we dont want to "suck" the whole site)
-        $crawler->setTrafficLimit(100000 * 1024);
+        $crawler->setTrafficLimit(5000000 * 1024);
 
         // Limit to 100k per page
         $crawler->setContentSizeLimit(120 * 1024);
@@ -69,5 +74,11 @@ class CrawlerController
         echo "Documents received: ".$report->files_received.$lb;
         echo "Bytes received: ".$report->bytes_received." bytes".$lb;
         echo "Process runtime: ".$report->process_runtime." sec".$lb;
+    }
+
+    public function initializeClientAction(Input $input, Output $output)
+    {
+        $this->crawlerSchema->initializeClient($input->getArgument('client'));
+
     }
 } 
